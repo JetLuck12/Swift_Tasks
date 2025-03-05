@@ -1,0 +1,87 @@
+class Session{
+    var name : String
+    unowned var user : User?
+    init(_ name : String){
+        self.name = name
+    }
+}
+
+class User{
+    var name : String
+    unowned var manager : Session_manager?
+    weak var session : Session?
+    init(_ name : String, _ manager : Session_manager){
+        self.name = name
+        self.manager = manager
+    }
+    func start_session(_ name : String){
+        guard let manager = self.manager else {
+            return
+        }
+        manager.start_session(name, self)
+    }
+    func end_session(){
+        guard let manager = self.manager, let session = self.session else {
+            return
+        }
+        manager.end_session(session.name, self)
+    }
+}
+
+class Session_manager {
+    var name : String
+    var users : Array<User>
+    var sessions : Array<Session>
+    init(_ name : String){
+        self.name = name
+        self.users = Array<User>()
+        self.sessions = Array<Session>()
+    }
+    
+    func add_user(_ name: String) -> User {
+        let new_user = User(name, self)
+        users.append(new_user)
+        return new_user
+    }
+    
+    func start_session(_ name : String, _ user : User){
+        let new_session = Session(name)
+        new_session.user = user
+        user.session = new_session
+        sessions.append(new_session)
+        users.append(user)
+    }
+    func end_session(_ name : String, _ user : User){
+        let session = sessions.filter({$0.name == name})
+        sessions.remove(at: session.firstIndex(where: {$0.name == name})!)
+        user.session = nil
+    }
+    func get_sessions() -> [String : String]{
+        var list : [String : String] = [:]
+        for session in sessions{
+            guard let user = session.user else {
+                continue
+            }
+            list[session.name] = user.name
+        }
+        return list
+    }
+    func get_users() -> [String : String]{
+        var list : [String : String] = [:]
+        for user in users{
+            guard let session = user.session else {
+                continue
+            }
+            list[user.name] = session.name
+        }
+        return list
+    }
+}
+
+var manager = Session_manager("manager")
+var Masha = manager.add_user("Masha")
+var Vasya = manager.add_user("Vasya")
+Masha.start_session("Read")
+Vasya.start_session("Play")
+print(manager.get_sessions())
+print(manager.get_users())
