@@ -1,36 +1,69 @@
-func get_ans(_ arr : [Character], _ k : Int) -> Int{
-    var start = 0
-    var res = 0
-    var diff = 0
-    var cons = 0
-    var chs : Dictionary<Character, Int> = ["a":0, "e":0, "i":0, "o":0, "u":0]
-    while (cons <= k && start < arr.count){
-        if let c = chs[arr[start]]{
-            chs[arr[start]]! += 1
-            if (c == 0){
-                diff += 1
-            }
-        }else{
-            cons += 1
+func isVowel(_ ch : Character) -> Bool{
+    for i in "aeiou"{
+        if ch == i{
+            return true
         }
-        if (diff == 5 && cons == k){
-            res += 1
-        }
-        start += 1
     }
-    return res
+    return false
 }
 
 class Solution {
-    func countOfSubstrings(_ word: String, _ k: Int) -> Int 
-    {
-        let arr = Array(word)
-        var start = 0
+    func countOfSubstrings(_ word: String, _ k: Int) -> Int {
+        var arr = Array(word)
         var res = 0
-        while(start < arr.count - k - 4){
-            var new_arr = Array(arr[start..<arr.count])
-            res += get_ans(new_arr, k)
-            start += 1
+        var start = 0
+        var end = 0
+        var map : [Character : Int] = [:]
+        var cons = 0
+        var next_cons : [Int] = Array(repeating : -1, count : arr.count)
+
+        var nextConsInd = arr.count
+        var i = arr.count - 1
+        while (i >= 0){
+            next_cons[i] = nextConsInd
+            if (!isVowel(arr[i])){
+                nextConsInd = i
+            }
+            i -= 1
+        }
+        while (end < arr.count){
+            var newLetter = arr[end]
+            if (isVowel(newLetter)){
+                if map[newLetter] != nil{
+                    map[newLetter]! += 1
+                }else{
+                    map[newLetter] = 1
+                }
+                
+            }else{
+                cons += 1
+            }
+            while (cons > k){
+                var startLetter = arr[start]
+                if (isVowel(startLetter)){
+                    map[startLetter]! -= 1
+                    if (map[startLetter]! == 0){
+                        map[startLetter] = nil
+                    }
+                }else{
+                    cons -= 1
+                }
+                start += 1
+            }
+            while (cons == k && map.count == 5){
+                res += next_cons[end] - end 
+                var startLetter = arr[start]
+                if (isVowel(startLetter)){
+                    map[startLetter]! -= 1
+                    if (map[startLetter]! == 0){
+                        map[startLetter] = nil
+                    }
+                }else{a
+                    cons -= 1
+                }
+                start += 1
+            }
+            end += 1
         }
         return res
     }
