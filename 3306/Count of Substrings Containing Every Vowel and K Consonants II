@@ -1,28 +1,22 @@
-func get_ans(_ arr : [Character], _ chs_ : Dictionary<Character, Int>, _ cons_ : Int, _ k : Int) -> Int{
-    var start = arr.count-1
-    var chs = chs_
-    var cons = cons_
+func get_ans(_ arr : [Character], _ k : Int) -> Int{
+    var start = 0
     var res = 0
-    if (cons < k){
-        return res
-    }
-    var diff = 5
-    while (cons >= k && diff == 5){
+    var diff = 0
+    var cons = 0
+    var chs : Dictionary<Character, Int> = ["a":0, "e":0, "i":0, "o":0, "u":0]
+    while (cons <= k && start < arr.count){
         if let c = chs[arr[start]]{
-            chs[arr[start]]! -= 1
-            if (c == 1){
-                diff -= 1
+            chs[arr[start]]! += 1
+            if (c == 0){
+                diff += 1
             }
         }else{
-            cons -= 1
+            cons += 1
         }
         if (diff == 5 && cons == k){
             res += 1
         }
-        if (diff < 5 || cons < k){
-            return res
-        }
-        start -= 1
+        start += 1
     }
     return res
 }
@@ -31,45 +25,11 @@ class Solution {
     func countOfSubstrings(_ word: String, _ k: Int) -> Int 
     {
         let arr = Array(word)
-        var chs : Dictionary<Character, Int> = ["a":0, "e":0, "i":0, "o":0, "u":0]
-        var cons = 0
-        var res = 0
-        var diff = 0
-        for i in 0..<arr.count{
-            if let c = chs[arr[i]]{
-                chs[arr[i]]! += 1
-                if (c == 0){
-                    diff += 1
-                }
-            }else{
-                cons += 1
-            }
-        }
-        if (diff < 5 || cons < k){
-            return 0
-        }
-        if (diff == 5 && cons == k){
-            res += 1
-        }
-        res += get_ans(arr, chs, cons, k)
         var start = 0
-        while(diff == 5 && cons >= k){
-            if let c = chs[arr[start]]{
-                chs[arr[start]]! -= 1
-                if (c == 1){
-                    diff -= 1
-                }
-            }else{
-                cons -= 1
-            }
-            if (diff != 5 || cons < k){
-                return res
-            }
-            let new_arr = Array(arr[start+1..<arr.count])
-            res += get_ans(new_arr, chs, cons, k)
-            if (cons == k && diff == 5){
-                res += 1
-            }
+        var res = 0
+        while(start < arr.count - k - 4){
+            var new_arr = Array(arr[start..<arr.count])
+            res += get_ans(new_arr, k)
             start += 1
         }
         return res
